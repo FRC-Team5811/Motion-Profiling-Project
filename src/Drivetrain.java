@@ -10,6 +10,7 @@ public class Drivetrain extends Subsystem{
 	double speedDerating = 0.95; // A fudged percentage of free speed to target as a cruising velocity
 	double accelDist; // a "measured" (simulation generated) value to reference for time decel
 	double pos; 
+	double wheelBaseWidth; 
 	
 	double timeToMaxSpeed, timeToZeroSpeed, upDownDistance, distance, cruisingDistance;
 	double dt = 0.020;
@@ -29,7 +30,7 @@ public class Drivetrain extends Subsystem{
 	double KVdumb;
 	double A, P, D = 0.0;
 	
-	public Drivetrain(double weight, int mID, int motors, double g, double wheelDiameter) {
+	public Drivetrain(double weight, int mID, int motors, double g, double wheelDiameter, double width) {
 		super(weight, mID, motors, g);
 		wheelRadius = wheelDiameter/2;
 		gearRatio = g;
@@ -37,6 +38,7 @@ public class Drivetrain extends Subsystem{
 		KVdumb = 1/freeSpeed;
 		maxAcceleration = 12*nMotors*(gearRatio*kt/(mass*wheelRadius*R))*(maxVoltage); //First twelve feet to inches
 		maxDeceleration = maxAcceleration;
+		wheelBaseWidth = width;
 		//timeToMaxSpeed = freeSpeed/maxAcceleration;
 		//timeToZeroSpeed = freeSpeed/maxDeceleration;
 		//upDownDistance = (freeSpeed)*(timeToMaxSpeed);
@@ -283,13 +285,15 @@ public class Drivetrain extends Subsystem{
 			System.out.println(velString);
 			System.out.println(accString);
 		}
+		System.out.println("Traveled: " + positions.get(positions.size()-1) + " inches in");
+		System.out.println((positions.size()*dt) + " s"); //Total amount of time spent on a movement
 		
 	}
 	
 	public void trapezoidalV2(double dist) {
 		distance = dist;
 		double specifiedAcceleration = 150.0;
-		double specifiedVelocity = 120.0;
+		double specifiedVelocity = 120.0; //120.0
 		timeToMaxSpeed = specifiedVelocity/specifiedAcceleration; //delta t = vf / a
 		timeToZeroSpeed = timeToMaxSpeed; //
 		upDownDistance = specifiedVelocity*(timeToMaxSpeed); 
@@ -344,10 +348,45 @@ public class Drivetrain extends Subsystem{
 			System.out.println("upDownDistance: " + upDownDistance);
 			System.out.println("timetomaxspeed: " + timeToMaxSpeed);
 		}else { //Otherwise generate a triangular profile or a lower max velocity trapezoidal profile
-			System.out.println("Code a triangular or lower max velocity trapezoidal profile generator already!");
-			
+			System.out.println("Triangular profile");
+			while(position < distance/2) {
+				acceleration = specifiedAcceleration;
+				velocity += acceleration*(simulatedTime - previousTime);
+				position += velocity*(simulatedTime - previousTime);
+				
+				positions.add(position);
+				velocities.add(velocity);
+				accelerations.add(acceleration);
+				voltages.add(this.controllerOutput(acceleration, velocity));
+				
+				previousTime = simulatedTime;
+				simulatedTime += dt;
+			}
+			while(velocity > 0) {
+				acceleration = -1*specifiedAcceleration;
+				velocity += acceleration*(simulatedTime - previousTime);
+				position += velocity*(simulatedTime - previousTime);
+				
+				positions.add(position);
+				velocities.add(velocity);
+				accelerations.add(acceleration);
+				voltages.add(this.controllerOutput(acceleration, velocity));
+				
+				previousTime = simulatedTime;
+				simulatedTime += dt;
+			}
 		}
 		
+		
+	}
+	
+	public void generatePointTurn(double angle) {
+		double arcDistance = angle/360*Math.PI*wheelBaseWidth;
+		this.trapezoidalV2(arcDistance);
+		this.executeTrapezoidalProfile(true);
+	}
+	
+	public void generatePointTurnV2(double angle) {
 		
 	}
 	
