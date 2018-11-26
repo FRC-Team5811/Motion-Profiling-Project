@@ -33,7 +33,7 @@ public class DifferentialDrive {
 		double deltaX, deltaY; 
 		
 		if(leftDist == rightDist) {  //Avoid division by zero error, but still return a pose //perfectly linear
-			System.out.println("straight line distance: " + leftDist);
+//			System.out.println("straight line distance: " + leftDist);
 			return new RigidTransform(leftDist, 0, 0);
 			
 		} else if(leftDist == 0.0 || rightDist == 0.0) {  //Another way to avoid division by zero //forward or backward pivot about one wheel
@@ -72,25 +72,25 @@ public class DifferentialDrive {
 				radialAddendum = Math.abs((innerArc * wheelBaseWidth) / (outerArc - innerArc));
 				deltaTheta = -1 * outerArc / (radialAddendum + wheelBaseWidth);
 			}
-			System.out.println("radial addendum: " + radialAddendum);
-			System.out.println("delta Theta : " + deltaTheta);
+//			System.out.println("radial addendum: " + radialAddendum);
+//			System.out.println("delta Theta : " + deltaTheta);
 			
 			deltaPMag = 2 * (radialAddendum + wheelBaseWidth / 2) * Math.abs(Math.sin(deltaTheta / 2));
-			System.out.println("translation magnitude: " + deltaPMag);
+//			System.out.println("translation magnitude: " + deltaPMag);
 			
 			if(leftDist > 0.0 || rightDist > 0.0) {
 				deltaX = deltaPMag * Math.cos(deltaTheta/2);
 				deltaY = deltaPMag * Math.sin(deltaTheta/2);
-				System.out.println("X: " + deltaX);
-				System.out.println("Y: " + deltaY);
+//				System.out.println("X: " + deltaX);
+//				System.out.println("Y: " + deltaY);
 			} else {
-				System.out.println("backward");
+//				System.out.println("backward");
 				deltaX = -1 * deltaPMag * Math.cos(deltaTheta/2);
 				deltaY = -1 * deltaPMag * Math.sin(deltaTheta/2);
-				System.out.println("X: " + deltaX);
-				System.out.println("Y: " + deltaY);
+//				System.out.println("X: " + deltaX);
+//				System.out.println("Y: " + deltaY);
 			}
-			return new RigidTransform(deltaPMag * Math.cos(deltaTheta), deltaPMag * Math.sin(deltaTheta), deltaTheta);
+			return new RigidTransform(deltaX, deltaY, deltaTheta);
 			
 		} else { // Turn centered within the wheel base
 			double innerArc, outerArc, longRadius, turnRadius;
@@ -108,24 +108,24 @@ public class DifferentialDrive {
 				deltaTheta = -1 * outerArc / longRadius;
 			} else {
 				deltaTheta = rightDist / (wheelBaseWidth / 2);
-				System.out.println("deltaTheta: " + deltaTheta);
+//				System.out.println("deltaTheta: " + deltaTheta);
 				return new RigidTransform(0, 0, deltaTheta);
 			} 
 			deltaPMag = 2 * turnRadius * Math.abs(Math.sin(deltaTheta / 2));
-			System.out.println("translation magnitude: " + deltaPMag);
-			System.out.println("delta Theta : " + deltaTheta);
+//			System.out.println("translation magnitude: " + deltaPMag);
+//			System.out.println("delta Theta : " + deltaTheta);
 			
 			if(outerArc > 0) {
 				deltaX = deltaPMag * Math.cos(deltaTheta/2);
 				deltaY = deltaPMag * Math.sin(deltaTheta/2);
-				System.out.println("X: " + deltaX);
-				System.out.println("Y: " + deltaY);
+//				System.out.println("X: " + deltaX);
+//				System.out.println("Y: " + deltaY);
 			} else {
-				System.out.println("backward");
+//				System.out.println("backward");
 				deltaX = -1 * deltaPMag * Math.cos(deltaTheta/2);
 				deltaY = -1 * deltaPMag * Math.sin(deltaTheta/2);
-				System.out.println("X: " + deltaX);
-				System.out.println("Y: " + deltaY);
+//				System.out.println("X: " + deltaX);
+//				System.out.println("Y: " + deltaY);
 			}
 			
 			return new RigidTransform(deltaX, deltaY, deltaTheta);

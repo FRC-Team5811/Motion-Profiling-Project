@@ -31,6 +31,22 @@ public class RigidTransform {
 						this.rotation.angle + p_.rotation.angle);
 	}
 	
+	public RigidTransform transformBy(final Translation t_, final Rotation r_) {
+		return new RigidTransform(this.translation.x + t_.x, 
+						this.translation.y + t_.y, 
+						this.rotation.angle + r_.angle);
+	}
 	
+	public RigidTransform transformByDynamic(final RigidTransform p_) {
+//		System.out.println("previousAngle " + previousAngle.toText());
+//		System.out.println("Translation " + p_.translation.toText());
+//		System.out.println("Rotated Translation " + (p_.translation.rotateBy(previousAngle)).toText());
+		return this.transformBy(p_.translation.rotateBy(this.rotation),p_.rotation);
+	}
+	
+	
+	String toText() {
+		return(this.translation.x + " " + this.translation.y + " " + this.rotation.angle);
+	}
 	
 }
